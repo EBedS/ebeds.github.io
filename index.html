@@ -14,7 +14,7 @@
 <body>
   <div id="app">
     <header class="nav">
-      <h1>Mini Section Designer</h1>
+      <h1>Mini Section Designer (Beta)</h1>
       ebedecarratz@renelagos.com
     </header>
 
@@ -22,15 +22,15 @@
       <div class="card">
         <div class="form-group">
           <h2 class="title">Introducción</h2>
-          <small>v.1.0.0</small>
+          <small>v.0.0.1</small>
           <small>Abril 2024</small>
           <ul>
             <li>Mini Section Designer permite hacer un análisis seccional unidireccional sencillo.</li>
-            <li>Se pueden definir modelos de materiales de hormigón (Mader) y acero (Menengotto Pinto).</li>
+            <li>Se pueden definir modelos de materiales de hormigón (Hognestad) y acero (Mander).</li>
             <li>Se construye una sección en base a areas de hormigón y areas concetradas de acero.</li>
             <li>El análisis es unidireccional en sentido de izquierda a derecha. Se comprime el lado derecho de la sección y se tracciona el lado izquierdo.</li>
             <li>Se puede visualizar e interactuar con el diagrama momento-curvatura.</li>
-            <li>Con cada modificación de input se actualizan los resultados.</li>
+            <li>En base a la curvatura elegida, se actualiza el perfil de deformaciones, de tensiones del hormigón y de tensiones del acero.</li>
           </ul>
         </div>
       </div>
@@ -152,7 +152,8 @@
         </div>
         <div class="input-group">
           <span>
-            <input type="range" id="mySlider" min="0" max="100" value="0"
+            <small style="font-size: 12px;">Desliza para modificar curvatura.</small>
+            <input style="margin: 0; padding: 0;" type="range" id="mySlider" min="0" max="100" value="0"
               v-model="curvature">
           </span>
         </div>
