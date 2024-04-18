@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mini Section Designer</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://unpkg.com/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <script src="https://kit.fontawesome.com/5010b2ddf0.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+  <div id="app">
+    <header class="nav">
+      <h1>Mini Section Designer</h1>
+      ebedecarratz@renelagos.com
+    </header>
+
+    <div class="container">
+      <div class="card">
+        <div class="form-group">
+          <h2 class="title">Introducción</h2>
+          <small>v.1.0.0</small>
+          <small>Abril 2024</small>
+          <ul>
+            <li>Mini Section Designer permite hacer un análisis seccional unidireccional sencillo.</li>
+            <li>Se pueden definir modelos de materiales de hormigón (Mader) y acero (Menengotto Pinto).</li>
+            <li>Se construye una sección en base a areas de hormigón y areas concetradas de acero.</li>
+            <li>El análisis es unidireccional en sentido de izquierda a derecha. Se comprime el lado derecho de la sección y se tracciona el lado izquierdo.</li>
+            <li>Se puede visualizar e interactuar con el diagrama momento-curvatura.</li>
+            <li>Con cada modificación de input se actualizan los resultados.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="form-group">
+          <h2 class="title">1. Definir hormigón</h2>
+          <div class="input-group" v-for="(input, label) in concrete.inputs" :key="label">
+            <label>{{ input.description }}</label>
+            <input class="input-primary" type="text" v-model="input.value">
+          </div>
+        </div>
+        <div class="form-group">
+          <h2 class="title">2. Definir acero</h2>
+          <div class="input-group" v-for="(input, label) in steel.inputs" :key="label">
+            <label>{{ input.description }}</label>
+            <input class="input-primary" type="text" v-model="input.value">
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="title">3. Definir sección</h2>
+        <div class="form-group">
+          <h4>3.1 Agregar áreas de hormigón</h4>
+          <ul style="font-size: 12px;">
+            <li>xi es la coordenada inicial del tramo en cm.</li>
+            <li>xf es la coordenada final del tramo en cm.</li>
+            <li>e es espesor del tramo en cm.</li>
+            <li>Click en <i class="fa-sharp fa-solid fa-plus"></i> para agregar.</li>
+            <li>Se pueden agregar varios tramos.</li>
+          </ul>
+          <table>
+            <thead>
+              <th>x<small>i</small></th>
+              <th>x<small>f</small></th>
+              <th>e</th>
+              <th></th>
+            </thead>
+            <thead>
+              <td><small>cm</small></td>
+              <td><small>cm</small></td>
+              <td><small>cm</small></td>
+              <td></td>
+            </thead>
+            <tr class="table-header">
+              <td><input v-model="input.x1" type="text" class="full-width" placeholder="0"></td>
+              <td><input v-model="input.x2" type="text" class="full-width" placeholder="100"></td>
+              <td><input v-model="input.thickness" type="text" class="full-width" placeholder="20"></td>
+              <td><a class="btn" @click="add_concrete"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
+            </tr>
+            <tr v-for="concrete_section in section.concrete_segments">
+              <td>{{concrete_section.x1}}</td>
+              <td>{{concrete_section.x2}}</td>
+              <td>{{concrete_section.thickness}}</td>
+              <td><a class="btn" @click="delete_concrete(concrete_section.id)"><i class="fa-solid fa-trash"></i></a></td>
+            </tr>
+          </table>
+        </div>
+        <div class="form-group">
+          <h4>3.2 Agregar áreas de acero</h4>
+          <ul style="font-size: 12px;">
+            <li>x es la coordenada del centro del área concentrada de acero en cm.</li>
+            <li>A es el área concentrada de acero en cm².</li>
+            <li>Click en <i class="fa-sharp fa-solid fa-plus"></i> para agregar.</li>
+            <li>Se pueden agregar varias áreas concentradas de acero.</li>
+          </ul>
+          <table>
+            <thead>
+              <th>x</th>
+              <th>A</th>
+              <th></th>
+            </thead>
+            <thead>
+              <td><small>cm</small></td>
+              <td><small>cm²</small></td>
+              <td></td>
+            </thead>
+            <tr class="table-header">
+              <td><input v-model="input.x" type="text" class="full-width" placeholder="4"></td>
+              <td><input v-model="input.area" type="text" class="full-width" placeholder="5.00"></td>
+              <td><a class="btn" @click="add_steel"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
+            </tr>
+            <tr v-for="steel_section in section.steel_areas">
+              <td>{{steel_section.x}}</td>
+              <td>{{steel_section.area}}</td>
+              <td><a class="btn" @click="delete_steel(steel_section.id)"><i class="fa-solid fa-trash"></i></a></td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2 class="title">4. Resumen de sección y materiales</h2>
+        <h4>4.1 Sección considerada</h4>
+        <div id="section-container" class="section-chart-container">
+          <svg id="section-svg"></svg>
+        </div>
+        <h4>4.2 Hormigón considerado</h4>
+        <div class="concrete-chart-container">
+          <svg id="concrete-svg" width="250" height="150"></svg>
+        </div>
+        <h4>4.3 Acero considerado</h4>
+        <div class="steel-chart-container">
+          <svg id="steel-svg" width="250" height="150"></svg>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="form-group">
+          <h2 class="title">5. Diagrama Momento-Curvatura</h2>
+          <div class="input-group">
+            <label>Carga axial (tonf) [+ Tensión]</label>
+            <input class="input-primary" type="text" v-model="axial_load">
+          </div>
+        </div>
+        <div class="analysis-chart-container" id="moment-curvature-container">
+          <svg width="250" height="150" id="moment-curvature-svg"></svg>
+        </div>
+        <div class="input-group">
+          <span>
+            <input type="range" id="mySlider" min="0" max="100" value="0"
+              v-model="curvature">
+          </span>
+        </div>
+        <div class="analysis-chart-container-2">
+          <svg width="250" height="120" id="def-profile-svg"></svg>
+        </div>
+        <div class="analysis-chart-container-2">
+          <svg width="250" height="120" id="concrete-profile-svg"></svg>
+        </div>
+        <div class="analysis-chart-container-2">
+          <svg width="250" height="120" id="steel-profile-svg"></svg>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <script src="main.js"></script>
+</body>
+
+</html>

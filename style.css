@@ -1,0 +1,162 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  font-size: 16px;
+}
+
+header {
+  background-color: #f4f4f4;
+  padding: 20px;
+  text-align: left;
+}
+
+h4 {
+  margin-top: 5px;
+  margin-bottom: 2px;
+}
+
+header button {
+  margin: 0 10px;
+  border: none;
+  outline: none;
+  padding: 14px 16px;
+  cursor: pointer;
+  font-size: 17px;
+}
+
+header button:hover {
+  background-color: #ddd;
+}
+
+.menu {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+.menu button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  font-size: 17px;
+}
+
+.menu button:hover {
+  background-color: #ddd;
+}
+
+.menu button.active {
+  background-color: #ccc;
+}
+
+.card {
+  width: 250px; /* Fixed card width */
+  height: 700px;
+  padding: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 5px;
+  font-family: Arial, sans-serif;
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: space-between; /* Ensures elements are spaced out and chart container aligns to the bottom */
+}
+
+.card .title {
+  font-size: 20px;
+  margin-bottom: 5px;
+}
+
+.card input {
+  display: block;
+  width: 90%;
+  margin-bottom: 5px;
+}
+
+.card label {
+  font-size: 14px;
+  display: block;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+.card input {
+  padding: 10px;
+  margin-top: 5px;
+  font-weight: bold;
+  font-size: 15px;
+}
+
+.steel-chart-container .concrete-chart-container .section-chart-container  {
+  width: 100%;
+  height: 250px; /* Fixed chart container height */
+  margin-top: 5px;
+}
+
+.analysis-chart-container-2 {
+  margin-top: 5px;
+}
+
+.form-group {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+.analysis-chart-container {
+  width: 100%;
+  height: 150px; /* Fixed chart container height */
+  margin-top: 5px;
+}
+
+table {
+  border-collapse: collapse; /* Optional: for aesthetic purposes */
+  width: 100%;
+}
+
+.table-header {
+  border-bottom: 2px solid #ccc;
+}
+
+th {
+  border-bottom: #f1f1f1;
+  width: 50px;
+  padding: 1px;
+  text-align: center;
+}
+
+td {
+  text-align: center;
+  padding: 1px; /* Remove padding to make input fit better */
+  width: 50px;
+}
+
+input.full-width {
+  padding: 1px;
+  height: 20px;
+  border-radius: 5px;
+  border: none;
+  background-color: #FFDC01;
+  text-align: center;
+  box-sizing: border-box; /* Make sure padding and border are included in the width */
+}
+
+.input-primary {
+  padding: 1px;
+  height: 20px;
+  width: 100px !important;
+  background-color: #FFDC01;
+  border: none;
+  border-radius: 5px;
+  text-align: center;
+  box-sizing: border-box; /* Make sure padding and border are included in the width */
+}
+
+.btn:hover {
+  cursor: pointer;
+}
