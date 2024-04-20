@@ -49,12 +49,13 @@ var app = new Vue({
       area: '',
     },
     section: {
-      steel_areas: [{ 'id':0, 'x': 4, 'area': 5 }],
-      concrete_segments: [{ 'id':1, 'x1': 0, 'x2': 100, 'thickness': 20, 'area':100*20}],
+      steel_areas: [{ 'id': 0, 'x': 4, 'area': 5 }],
+      concrete_segments: [{ 'id': 1, 'x1': 0, 'x2': 100, 'thickness': 20, 'area': 100 * 20 }],
     },
     analysis: {
       data: [],
     },
+    interaction: [],
     results: {
     },
     axial_load: -0.1,
@@ -457,7 +458,7 @@ var app = new Vue({
         } else if (Pn == P) {
           break;
         }
-        if (error < 1.05 && error > 0.95) {
+        if (error < 1.025 && error > 0.975) {
           break;
         }
       }
@@ -486,12 +487,29 @@ var app = new Vue({
       }
     },
     update_interaction_data() {
-      var PnMax = 0;
-      var SteelForce = 0;
-      var ConcreteForce = 0;
-      var PnMin = 0;
-      
-
+      this.interaction = 0;
+      var MaxCompresion = 0;
+      var MaxTension = 0;
+      this.section.concrete_segments.forEach(element => {
+        MaxCompresion += element.area / 10000 * this.concrete.inputs.fc.value * 100;
+      });
+      this.section.steel_areas.forEach(element => {
+        MaxCompresion += element.area / 10000 * this.steel.inputs.Fy.value * 100 - element.area / 10000 * this.concrete.inputs.fc.value * 100;
+        MaxTension += element.area / 10000 * this.steel.inputs.Fy.value * 100;
+      });
+      MaxCompresion = 0.8*MaxCompresion;
+      var axialLoads = [-0.01];
+      numberOfPoints = 20;
+      for (let i = 0; i < numberOfPoints; i++) {
+        axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))
+      };
+      console.log(MaxCompresion, MaxTension, axialLoads)
+      this.interaction = [{ 'x': 0, 'y': -MaxTension }];
+      axialLoads.forEach(P => {
+        var results = this.calcualte_interaction(P)
+        this.interaction.push({ 'x': results.Mn/100, 'y': -results.Pn })
+      });
+      this.interaction.push({ 'x': 0, 'y': MaxCompresion })
     },
     plot_section() {
       d3.select("#section-svg").remove()
@@ -864,6 +882,61 @@ var app = new Vue({
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "14px") // Change font-size here
         .text("fs (MPa)");
+    },
+    plot_interaction() {
+      const data = this.interaction;
+      d3.select("#interaction-diagram-svg").html('')
+      const svg = d3.select("#interaction-diagram-svg"),
+        margin = { top: 20, right: 20, bottom: 30, left: 50 },
+        width = +svg.attr("width") - margin.left - margin.right,
+        height = +svg.attr("height") - margin.top - margin.bottom,
+        g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+      // Scales
+      const xScale = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.x))
+        .range([0, width])
+        .nice();
+      const yScale = d3.scaleLinear()
+        .domain(d3.extent(data, d => d.y))
+        .range([height, 0])
+        .nice();
+      // Line generator
+      const line = d3.line()
+        .x(d => xScale(d.x))
+        .y(d => yScale(d.y));
+      // Draw line
+      g.append("path")
+        .datum(data)
+        .attr("fill", "none")
+        .attr("stroke", "#305BA1")
+        .attr("stroke-linejoin", "round")
+        .attr("stroke-linecap", "round")
+        .attr("stroke-width", 3)
+        .attr("d", line);
+      // Add the X Axis with fewer ticks
+      g.append("g")
+        .attr("transform", "translate(0," + yScale(0) + ")")
+        .call(d3.axisBottom(xScale).ticks(5)); // Adjust number of ticks here
+      // Add the Y Axis
+      g.append("g")
+        .call(d3.axisLeft(yScale).ticks(5));
+      // X Axis Title
+      g.append("text")
+        .attr("text-anchor", "end")
+        .attr("x", width)
+        .attr("y", height + margin.bottom)
+        .style("font-family", "Arial") // Change font-family here
+        .style("font-size", "14px") // Change font-size here
+        .text("Mn (tonf-m)");
+      // Y Axis Title
+      g.append("text")
+        .attr("text-anchor", "end")
+        .attr("transform", "rotate(-90)")
+        .attr("y", -margin.left + 20)
+        .attr("x", -margin.top)
+        .style("font-family", "Arial") // Change font-family here
+        .style("font-size", "14px") // Change font-size here
+        .text("Pn (tonf)");
     }
   },
   mounted() {
@@ -871,7 +944,9 @@ var app = new Vue({
     this.plotConcrete();
     this.plot_section();
     this.update_moment_curvature_data();
+    this.update_interaction_data();
     this.plot_moment_curvature();
+    this.plot_interaction();
   },
   watch: {
     steel: {
@@ -893,8 +968,10 @@ var app = new Vue({
     section: {
       handler() {
         this.update_moment_curvature_data();
+        this.update_interaction_data();
         this.plot_section();
         this.plot_moment_curvature();
+        this.plot_interaction();
       },
       deep: true
     },
