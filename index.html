@@ -77,9 +77,9 @@
               <td></td>
             </thead>
             <tr class="table-header">
-              <td><input v-model="input.x1" type="text" class="full-width" placeholder="0"></td>
-              <td><input v-model="input.x2" type="text" class="full-width" placeholder="100"></td>
-              <td><input v-model="input.thickness" type="text" class="full-width" placeholder="20"></td>
+              <td><input v-model="input.x1" type="text" class="full-width"></td>
+              <td><input v-model="input.x2" type="text" class="full-width"></td>
+              <td><input v-model="input.thickness" type="text" class="full-width"></td>
               <td><a class="btn" @click="add_concrete"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
             </tr>
             <tr v-for="concrete_section in section.concrete_segments">
@@ -110,8 +110,8 @@
               <td></td>
             </thead>
             <tr class="table-header">
-              <td><input v-model="input.x" type="text" class="full-width" placeholder="4"></td>
-              <td><input v-model="input.area" type="text" class="full-width" placeholder="5.00"></td>
+              <td><input v-model="input.x" type="text" class="full-width"></td>
+              <td><input v-model="input.area" type="text" class="full-width"></td>
               <td><a class="btn" @click="add_steel"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
             </tr>
             <tr v-for="steel_section in section.steel_areas">
@@ -167,7 +167,10 @@
           <svg width="250" height="120" id="steel-profile-svg"></svg>
         </div>
       </div>
-
+      <div class="card">
+        <h2 class="title">6. Diagrama de Interacción</h2>
+        <svg width="250" height="150" id="interaction-diagram-svg"></svg>
+      </div>
     </div>
   </div>
   <script src="main.js"></script>

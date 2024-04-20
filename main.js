@@ -49,8 +49,8 @@ var app = new Vue({
       area: '',
     },
     section: {
-      steel_areas: [],
-      concrete_segments: [],
+      steel_areas: [{ 'id':0, 'x': 4, 'area': 5 }],
+      concrete_segments: [{ 'id':1, 'x1': 0, 'x2': 100, 'thickness': 20, 'area':100*20}],
     },
     analysis: {
       data: [],
@@ -217,7 +217,7 @@ var app = new Vue({
         'x1': this.input.x1,
         'x2': this.input.x2,
         'thickness': this.input.thickness,
-        'area': Math.abs(this.input.x2-this.input.x1)*this.input.thickness,
+        'area': Math.abs(this.input.x2 - this.input.x1) * this.input.thickness,
       })
     },
     delete_steel(id) {
@@ -226,17 +226,8 @@ var app = new Vue({
     delete_concrete(id) {
       this.section.concrete_segments = this.section.concrete_segments.filter(item => item.id !== id)
     },
-    calculate_moment_curvature(curvature) {
-      // Section
-      var N = 100;
-      var x = [
-        ...this.section.concrete_segments.map(obj => obj.x2),
-        ...this.section.concrete_segments.map(obj => obj.x1)
-      ];
-      var max_x = Math.max(...x);
-      var min_x = Math.min(...x);
-      var L = max_x - min_x;
-      // Concrete forces
+    get_concrete_fibers() {
+      var N = 100; // Number of tranches
       var concrete_fibers = [];
       this.section.concrete_segments.forEach(element => {
         let Li = Math.abs(element.x2 - element.x1);
@@ -254,6 +245,28 @@ var app = new Vue({
           })
         });
       });
+      return concrete_fibers
+    },
+    calculate_xg() {
+      var xg = 0;
+      var total_concrete_area = 0;
+      this.section.concrete_segments.forEach(element => {
+        total_concrete_area += element.area;
+      });
+      this.section.concrete_segments.forEach(element => {
+        xg += ((element.x2 + element.x1) / 2) * element.area / total_concrete_area;
+      });
+      return xg
+    },
+    calculate_moment_curvature(curvature) {
+      concrete_fibers = this.get_concrete_fibers();
+      var x = [
+        ...this.section.concrete_segments.map(obj => obj.x2),
+        ...this.section.concrete_segments.map(obj => obj.x1)
+      ];
+      var max_x = Math.max(...x);
+      var min_x = Math.min(...x);
+      var L = max_x - min_x;
       // Iteration
       var iterator = 0;
       var c_max = 1.5 * L;
@@ -278,7 +291,7 @@ var app = new Vue({
           let fiber = concrete_fibers[i];
           let epsilon = concrete_epsilons[i];
           let tension = this.concrete_tension(epsilon);
-          let force = tension * 100 * fiber.area/10000;
+          let force = tension * 100 * fiber.area / 10000;
           concrete_results.push({
             'position': fiber.x,
             'area': fiber.area,
@@ -293,7 +306,7 @@ var app = new Vue({
           let id = steel_area.id
           let epsilon = steel_epsilons[i];
           let tension = this.steel_tension(epsilon);
-          let force = tension * 100 * steel_area.area/10000;
+          let force = tension * 100 * steel_area.area / 10000;
           steel_results.push({
             'id': id,
             'position': steel_area.x,
@@ -317,17 +330,10 @@ var app = new Vue({
           Mn_steel += element.force * element.position
         });
         var Pn = Pn_concrete + Pn_steel;
-        var P = (this.axial_load == 0? -0.01: this.axial_load);
-        var P = (P == 0? -0.01: this.axial_load);
-        var xg = 0;
-        var total_concrete_area = 0;
-        this.section.concrete_segments.forEach(element => {
-          total_concrete_area += element.area;
-        });
-        this.section.concrete_segments.forEach(element => {
-          xg += ((element.x2+element.x1)/2)*element.area/total_concrete_area;
-        });
-        var Mn = Math.abs(Mn_concrete + Mn_steel - P * max_x/2);
+        var P = (this.axial_load == 0 ? -0.01 : this.axial_load);
+        var P = (P == 0 ? -0.01 : this.axial_load);
+        var xg = this.calculate_xg();
+        var Mn = Math.abs(Mn_concrete + Mn_steel - P * xg / 2);
         // Verification
         if (Pn > P) {
           var error = Pn / P;
@@ -362,13 +368,130 @@ var app = new Vue({
       }
       return result
     },
+    calcualte_interaction(P) {
+      concrete_fibers = this.get_concrete_fibers();
+      var x = [
+        ...this.section.concrete_segments.map(obj => obj.x2),
+        ...this.section.concrete_segments.map(obj => obj.x1)
+      ];
+      var max_x = Math.max(...x);
+      var min_x = Math.min(...x);
+      var L = max_x - min_x;
+      // Iteration
+      var iterator = 0;
+      var c_max = 1.5 * L;
+      var c_min = 0.0001;
+      var c = c_min;
+      while (iterator < 1000) {
+        iterator++;
+        var ec = -0.003;
+        var et = ec / c * (min_x - max_x + c);
+        // Epsilons
+        var concrete_epsilons = [];
+        concrete_fibers.forEach(fiber => {
+          concrete_epsilons.push(ec / c * (fiber.x - max_x + c))
+        });
+        var steel_epsilons = [];
+        this.section.steel_areas.forEach(element => {
+          steel_epsilons.push(ec / c * (element.x - max_x + c))
+        });
+        // Forces
+        var concrete_results = [];
+        for (let i = 0; i < concrete_epsilons.length; i++) {
+          let fiber = concrete_fibers[i];
+          let epsilon = concrete_epsilons[i];
+          let tension = this.concrete_tension(epsilon);
+          let force = tension * 100 * fiber.area / 10000;
+          concrete_results.push({
+            'position': fiber.x,
+            'area': fiber.area,
+            'epsilon': epsilon,
+            'tension': tension,
+            'force': force,
+          })
+        }
+        var steel_results = [];
+        for (let i = 0; i < steel_epsilons.length; i++) {
+          let steel_area = this.section.steel_areas[i];
+          let id = steel_area.id
+          let epsilon = steel_epsilons[i];
+          let tension = this.steel_tension(epsilon);
+          let force = tension * 100 * steel_area.area / 10000;
+          steel_results.push({
+            'id': id,
+            'position': steel_area.x,
+            'area': steel_area.area,
+            'epsilon': epsilon,
+            'tension': tension,
+            'force': force,
+          })
+        }
+        // Equilibrium
+        var Pn_concrete = 0;
+        var Pn_steel = 0;
+        var Mn_concrete = 0
+        var Mn_steel = 0
+        concrete_results.forEach(element => {
+          Pn_concrete += element.force
+          Mn_concrete += element.force * element.position
+        });
+        steel_results.forEach(element => {
+          Pn_steel += element.force
+          Mn_steel += element.force * element.position
+        });
+        var Pn = Pn_concrete + Pn_steel;
+        var P = (P == 0 ? -0.01 : P);
+        var xg = this.calculate_xg();
+        var Mn = Math.abs(Mn_concrete + Mn_steel - P * xg / 2);
+        // Verification
+        if (Pn > P) {
+          var error = Pn / P;
+          var c0 = c;
+          var c = (c_max + c) / 2;
+          var c_min = c0;
+        } else if (Pn < P) {
+          var error = P / Pn;
+          var c0 = c;
+          var c = (c_min + c) / 2;
+          var c_max = c0;
+        } else if (Pn == P) {
+          break;
+        }
+        if (error < 1.05 && error > 0.95) {
+          break;
+        }
+      }
+      var result = {
+        'iterator': iterator,
+        'curvature': -ec / c,
+        'xg': xg,
+        'Pn': Pn,
+        'Mn': Mn,
+        'c': c,
+        'ec': ec,
+        'et': et,
+        'min_x': min_x,
+        'max_x': max_x,
+        'steel_results': steel_results,
+        'concrete_results': concrete_results
+      }
+      return result
+    },
     update_moment_curvature_data() {
       this.analysis.data = [{ 'x': 0, 'y': 0 }];
       for (let i = 0; i < 100; i++) {
-        curvature = (i+1) / 100000;
+        curvature = (i + 1) / 100000;
         result = this.calculate_moment_curvature(curvature);
         this.analysis.data.push({ 'x': curvature, 'y': result.Mn / 100 })
       }
+    },
+    update_interaction_data() {
+      var PnMax = 0;
+      var SteelForce = 0;
+      var ConcreteForce = 0;
+      var PnMin = 0;
+      
+
     },
     plot_section() {
       d3.select("#section-svg").remove()
@@ -510,13 +633,13 @@ var app = new Vue({
         .attr('stroke', '#FFDC01')
         .attr('stroke-width', 3)
       // Values of Mn and Φ
-      var Mn = this.results.Mn/100
+      var Mn = this.results.Mn / 100
       var Cur = this.curvature / 100000
       g.append("text")
         .attr('id', 'vertical-line-text')
         .attr("text-anchor", "end")
-        .attr("x", xScale(this.curvature / 100000)+40)
-        .attr("y", margin.top-20)
+        .attr("x", xScale(this.curvature / 100000) + 40)
+        .attr("y", margin.top - 20)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "12px") // Change font-size here
         .text('(' + Cur.toFixed(5) + ', ' + Mn.toFixed(2) + ')');
@@ -566,21 +689,21 @@ var app = new Vue({
       g.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
-        .attr("y", margin.top-30)
+        .attr("y", margin.top - 30)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "12px") // Change font-size here
         .text('εc = ' + this.results.ec.toFixed(5));
       g.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
-        .attr("y", margin.top-10)
+        .attr("y", margin.top - 10)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "12px") // Change font-size here
-        .text('c = ' + this.results.c.toFixed(2)+' cm');
+        .text('c = ' + this.results.c.toFixed(2) + ' cm');
       g.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
-        .attr("y", margin.top-20)
+        .attr("y", margin.top - 20)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "12px") // Change font-size here
         .text('εt = ' + this.results.et.toFixed(5));
@@ -645,14 +768,14 @@ var app = new Vue({
       g.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
-        .attr("y", height+20)
+        .attr("y", height + 20)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "12px") // Change font-size here
         .text('Max fc = ' + max_fc.toFixed(1) + ' MPa');
       // Add the X Axis
       g.append("g")
         .call(d3.axisLeft(yScale).ticks(3));
-        g.append("text")
+      g.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
         .attr("y", height + margin.bottom)
@@ -676,7 +799,7 @@ var app = new Vue({
       const width = +svg.attr("width") - margin.left - margin.right;
       const height = +svg.attr("height") - margin.top - margin.bottom;
       const g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-      var data = [{'x':0, 'y':0}];
+      var data = [{ 'x': 0, 'y': 0 }];
       this.results.steel_results.forEach(element => {
         data.push({
           'x': element.position,
@@ -693,13 +816,13 @@ var app = new Vue({
       // Draw line
       data.forEach(element => {
         g.append('line')
-        .attr('id', 'vertical-line') // Adding an identifier
-        .attr('x1', xScale(element.x))
-        .attr('x2', xScale(element.x))
-        .attr('y1', yScale(0))
-        .attr('y2', yScale(element.y))
-        .attr('stroke', "#305BA1")
-        .attr('stroke-width', 3)
+          .attr('id', 'vertical-line') // Adding an identifier
+          .attr('x1', xScale(element.x))
+          .attr('x2', xScale(element.x))
+          .attr('y1', yScale(0))
+          .attr('y2', yScale(element.y))
+          .attr('stroke', "#305BA1")
+          .attr('stroke-width', 3)
       });
       // Add the X Axis with fewer ticks
       g.append("g")
@@ -725,9 +848,9 @@ var app = new Vue({
       // Add the X Axis
       g.append("g")
         .call(d3.axisLeft(yScale).ticks(3));
-        g.append("text")
+      g.append("text")
         .attr("text-anchor", "end")
-        .attr("x", width/2)
+        .attr("x", width / 2)
         .attr("y", height + margin.bottom)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "14px") // Change font-size here
@@ -746,12 +869,14 @@ var app = new Vue({
   mounted() {
     this.plotSteel();
     this.plotConcrete();
+    this.plot_section();
+    this.update_moment_curvature_data();
     this.plot_moment_curvature();
   },
   watch: {
     steel: {
       handler() {
-        this.update_moment_curvature_data()
+        this.update_moment_curvature_data();
         this.plotSteel();
         this.plot_moment_curvature();
       },
@@ -759,7 +884,7 @@ var app = new Vue({
     },
     concrete: {
       handler() {
-        this.update_moment_curvature_data()
+        this.update_moment_curvature_data();
         this.plotConcrete();
         this.plot_moment_curvature();
       },
@@ -767,7 +892,7 @@ var app = new Vue({
     },
     section: {
       handler() {
-        this.update_moment_curvature_data()
+        this.update_moment_curvature_data();
         this.plot_section();
         this.plot_moment_curvature();
       },
@@ -785,7 +910,7 @@ var app = new Vue({
       deep: true
     },
     curvature: {
-      handler () {
+      handler() {
         this.results = this.calculate_moment_curvature(this.curvature / 100000);
         this.plot_deformation_profile();
         this.plot_concrete_profile();
@@ -794,10 +919,10 @@ var app = new Vue({
       }
     },
     axial_load: {
-      handler () {
+      handler() {
         if (Math.abs(this.axial_load) >= 0.0000000001) {
           this.update_moment_curvature_data()
-          this.results = this.calculate_moment_curvature(this.curvature / 100000);            
+          this.results = this.calculate_moment_curvature(this.curvature / 100000);
         }
       }
     }
