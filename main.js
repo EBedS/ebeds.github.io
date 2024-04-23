@@ -41,7 +41,7 @@ var app = new Vue({
       }
     },
     input: {
-      id: 0,
+      id: 1,
       x1: '',
       x2: '',
       thickness: '',
@@ -49,19 +49,26 @@ var app = new Vue({
       area: '',
     },
     section: {
-      steel_areas: [{ 'id': 0, 'x': 4, 'area': 5 }],
-      concrete_segments: [{ 'id': 1, 'x1': 0, 'x2': 100, 'thickness': 20, 'area': 100 * 20 }],
+      steel_areas: [{ 'id': 1, 'x': 4, 'area': 5 }],
+      concrete_segments: [{ 'id': 0, 'x1': 0, 'x2': 100, 'thickness': 20, 'area': 2000 }],
     },
     analysis: {
       data: [],
     },
-    interaction: [],
+    interaction: [
+
+    ],
     results: {
     },
     axial_load: -0.1,
     curvature: 0,
+    switchState: false,
+    xg: 0,
   },
   methods: {
+    toggleSwitch() {
+      this.switchState = !this.switchState;
+    },
     concrete_tension(epsilon) {
       var fc = parseFloat(this.concrete.inputs.fc.value)
       var e0 = parseFloat(this.concrete.inputs.e0.value)
@@ -207,18 +214,18 @@ var app = new Vue({
       this.input.id += 1
       this.section.steel_areas.push({
         'id': this.input.id,
-        'x': this.input.x,
-        'area': this.input.area,
+        'x': parseFloat(this.input.x),
+        'area': parseFloat(this.input.area),
       })
     },
     add_concrete() {
       this.input.id += 1
       this.section.concrete_segments.push({
         'id': this.input.id,
-        'x1': this.input.x1,
-        'x2': this.input.x2,
-        'thickness': this.input.thickness,
-        'area': Math.abs(this.input.x2 - this.input.x1) * this.input.thickness,
+        'x1': parseFloat(this.input.x1),
+        'x2': parseFloat(this.input.x2),
+        'thickness': parseFloat(this.input.thickness),
+        'area': Math.abs(parseFloat(this.input.x2) - parseFloat(this.input.x1)) * parseFloat(this.input.thickness),
       })
     },
     delete_steel(id) {
@@ -249,15 +256,17 @@ var app = new Vue({
       return concrete_fibers
     },
     calculate_xg() {
-      var xg = 0;
+      this.xg = 0;
+      console.log(this.xg)
       var total_concrete_area = 0;
       this.section.concrete_segments.forEach(element => {
         total_concrete_area += element.area;
+        console.log(element.area, total_concrete_area)
       });
       this.section.concrete_segments.forEach(element => {
-        xg += ((element.x2 + element.x1) / 2) * element.area / total_concrete_area;
+        this.xg += ((element.x2 + element.x1) / 2) * element.area / total_concrete_area;
+        console.log(element.x2, element.x1, element.area, this.xg)
       });
-      return xg
     },
     calculate_moment_curvature(curvature) {
       concrete_fibers = this.get_concrete_fibers();
@@ -333,8 +342,8 @@ var app = new Vue({
         var Pn = Pn_concrete + Pn_steel;
         var P = (this.axial_load == 0 ? -0.01 : this.axial_load);
         var P = (P == 0 ? -0.01 : this.axial_load);
-        var xg = this.calculate_xg();
-        var Mn = Math.abs(Mn_concrete + Mn_steel - P * xg / 2);
+
+        var Mn = Math.abs(Mn_concrete + Mn_steel - P * this.xg / 2);
         // Verification
         if (Pn > P) {
           var error = Pn / P;
@@ -356,7 +365,6 @@ var app = new Vue({
       var result = {
         'iterator': iterator,
         'curvature': curvature,
-        'xg': xg,
         'Pn': Pn,
         'Mn': Mn,
         'c': c,
@@ -370,7 +378,7 @@ var app = new Vue({
       return result
     },
     calcualte_interaction(P) {
-      concrete_fibers = this.get_concrete_fibers();
+      var concrete_fibers = this.get_concrete_fibers();
       var x = [
         ...this.section.concrete_segments.map(obj => obj.x2),
         ...this.section.concrete_segments.map(obj => obj.x1)
@@ -442,8 +450,7 @@ var app = new Vue({
         });
         var Pn = Pn_concrete + Pn_steel;
         var P = (P == 0 ? -0.01 : P);
-        var xg = this.calculate_xg();
-        var Mn = Math.abs(Mn_concrete + Mn_steel - P * xg / 2);
+        var Mn = Math.abs(Mn_concrete + Mn_steel - P * this.xg / 2) / 100;
         // Verification
         if (Pn > P) {
           var error = Pn / P;
@@ -465,7 +472,6 @@ var app = new Vue({
       var result = {
         'iterator': iterator,
         'curvature': -ec / c,
-        'xg': xg,
         'Pn': Pn,
         'Mn': Mn,
         'c': c,
@@ -481,13 +487,13 @@ var app = new Vue({
     update_moment_curvature_data() {
       this.analysis.data = [{ 'x': 0, 'y': 0 }];
       for (let i = 0; i < 100; i++) {
-        curvature = (i + 1) / 100000;
-        result = this.calculate_moment_curvature(curvature);
-        this.analysis.data.push({ 'x': curvature, 'y': result.Mn / 100 })
+        let curvature = (i + 1) / 100000;
+        let result = this.calculate_moment_curvature(curvature);
+        this.analysis.data.push({ 'x': curvature, 'y': result.Mn/100 })
       }
     },
     update_interaction_data() {
-      this.interaction = 0;
+      this.interaction = [];
       var MaxCompresion = 0;
       var MaxTension = 0;
       this.section.concrete_segments.forEach(element => {
@@ -497,19 +503,27 @@ var app = new Vue({
         MaxCompresion += element.area / 10000 * this.steel.inputs.Fy.value * 100 - element.area / 10000 * this.concrete.inputs.fc.value * 100;
         MaxTension += element.area / 10000 * this.steel.inputs.Fy.value * 100;
       });
-      MaxCompresion = 0.8*MaxCompresion;
-      var axialLoads = [-0.01];
-      numberOfPoints = 20;
+      var MaxCompresion = 0.8 * MaxCompresion;
+      this.interaction.push({ 'x': 0, 'y': -MaxTension });
+      var axialLoads = [-0.1];
+      var numberOfPoints = 8;
       for (let i = 0; i < numberOfPoints; i++) {
         axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))
       };
-      console.log(MaxCompresion, MaxTension, axialLoads)
-      this.interaction = [{ 'x': 0, 'y': -MaxTension }];
-      axialLoads.forEach(P => {
-        var results = this.calcualte_interaction(P)
-        this.interaction.push({ 'x': results.Mn/100, 'y': -results.Pn })
-      });
-      this.interaction.push({ 'x': 0, 'y': MaxCompresion })
+      for (let i = 0; i < axialLoads.length; i++) {
+        let P = axialLoads[i];
+        let results = this.calcualte_interaction(P);
+        this.interaction.push(
+          {
+            'x': results.Mn,
+            'y': -results.Pn,
+            'max_x': results.max_x,
+            'c': results.c,
+            'ec': results.ec,
+          });
+      }
+      this.interaction.push({ 'x': 0, 'y': MaxCompresion });
+      console.log(this.interaction)
     },
     plot_section() {
       d3.select("#section-svg").remove()
@@ -526,7 +540,6 @@ var app = new Vue({
         .attr("preserveAspectRatio", "xMinYMin meet")
         .call(zoom)
         .append("g")
-
       // Data generation
       this.section.concrete_segments.forEach(element => {
         // Draw the line
@@ -940,6 +953,7 @@ var app = new Vue({
     }
   },
   mounted() {
+    this.calculate_xg();
     this.plotSteel();
     this.plotConcrete();
     this.plot_section();
@@ -951,25 +965,30 @@ var app = new Vue({
   watch: {
     steel: {
       handler() {
-        this.update_moment_curvature_data();
         this.plotSteel();
+        this.update_moment_curvature_data();
+        this.update_interaction_data();
         this.plot_moment_curvature();
+        this.plot_interaction();
       },
       deep: true
     },
     concrete: {
       handler() {
-        this.update_moment_curvature_data();
         this.plotConcrete();
+        this.update_moment_curvature_data();
+        this.update_interaction_data();
         this.plot_moment_curvature();
+        this.plot_interaction();
       },
       deep: true
     },
     section: {
       handler() {
+        this.calculate_xg();
+        this.plot_section();
         this.update_moment_curvature_data();
         this.update_interaction_data();
-        this.plot_section();
         this.plot_moment_curvature();
         this.plot_interaction();
       },
@@ -1004,7 +1023,6 @@ var app = new Vue({
       }
     }
   }
-
 });
 
 
