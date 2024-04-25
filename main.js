@@ -47,6 +47,8 @@ var app = new Vue({
       thickness: '',
       x: '',
       area: '',
+      Pu: '',
+      Mu: '',
     },
     section: {
       steel_areas: [
@@ -68,8 +70,9 @@ var app = new Vue({
     },
     axial_load: -0.1,
     curvature: 0,
-    switchState: false,
+    switchState: true,
     xg: 0,
+    interaction_points: [],
   },
   methods: {
     toggleSwitch() {
@@ -225,14 +228,25 @@ var app = new Vue({
       })
     },
     add_concrete() {
-      this.input.id += 1
+      this.input.id += 1;
       this.section.concrete_segments.push({
         'id': this.input.id,
         'x1': parseFloat(this.input.x1),
         'x2': parseFloat(this.input.x2),
         'thickness': parseFloat(this.input.thickness),
         'area': Math.abs(parseFloat(this.input.x2) - parseFloat(this.input.x1)) * parseFloat(this.input.thickness),
-      })
+      });
+    },
+    add_interaction_point() {
+      this.input.id += 1;
+      this.interaction_points.push({
+        'id': this.input.id,
+        'x': this.input.Pu,
+        'y': this.input.Mu,
+      });
+    },
+    delete_interaction_point(id) {
+      this.interaction_points = this.interaction_points.filter(item => item.id !== id)
     },
     delete_steel(id) {
       this.section.steel_areas = this.section.steel_areas.filter(item => item.id !== id)
@@ -511,17 +525,17 @@ var app = new Vue({
       });
       var MaxCompresion = 0.8 * MaxCompresion;
       if (this.switchState) {
-        this.interaction.push({ 'x': 0, 'y': -MaxTension*0.9});
-      } else {
         this.interaction.push({ 'x': 0, 'y': -MaxTension });
+      } else {
+        this.interaction.push({ 'x': 0, 'y': -MaxTension*0.9});
       }
       var axialLoads = [-0.1];
       var numberOfPoints = 8;
       for (let i = 0; i < numberOfPoints; i++) {
         if (this.switchState) {
-          axialLoads.push(-MaxCompresion*0.65 / numberOfPoints * (i + 1))
+          axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))          
         } else {
-          axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))
+          axialLoads.push(-MaxCompresion*0.65 / numberOfPoints * (i + 1))
         }
       };      
       for (let i = 0; i < axialLoads.length; i++) {
@@ -542,12 +556,10 @@ var app = new Vue({
           });
       }
       if (this.switchState) {
-        this.interaction.push({ 'x': 0, 'y': MaxCompresion*0.65 });
-      } else {
         this.interaction.push({ 'x': 0, 'y': MaxCompresion });
-      }
-      
-      console.log(this.interaction)
+      } else {
+        this.interaction.push({ 'x': 0, 'y': MaxCompresion*0.65 });
+      }      
     },
     plot_section() {
       d3.select("#section-svg").remove()
@@ -974,6 +986,14 @@ var app = new Vue({
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "14px") // Change font-size here
         .text("Pn (tonf)");
+      this.interaction_points.forEach(element => {
+        g.append('circle')
+          .attr('cx', xScale(element.y)) // Set circle's x-coordinate
+          .attr('cy', yScale(element.x)) // Set circle's y-coordinate
+          .attr('r', 3) // Radius of the circle
+          .attr('fill', '#FFDC01') // Color of the circle
+          .attr('stroke', 'black'); // Color of the circle
+      });
     }
   },
   mounted() {
@@ -1044,6 +1064,11 @@ var app = new Vue({
           this.update_moment_curvature_data()
           this.results = this.calculate_moment_curvature(this.curvature / 100000);
         }
+      }
+    },
+    interaction_points: {
+      handler() {
+        this.plot_interaction();
       }
     },
     switchState: {

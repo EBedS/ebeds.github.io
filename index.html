@@ -170,10 +170,6 @@
       <div class="card">
         <div>
           <h2 class="title">6. Diagrama de Interacción</h2>
-          <label class="switch">
-            <input type="checkbox" v-model="switchState" @change="toggleSwitch">
-            <span class="slider round"></span>
-          </label>
           <svg width="250" height="170" id="interaction-diagram-svg"></svg>
           <h4>6.1 Tabla del diagrama de interacción</h4>
           <table>
@@ -185,9 +181,9 @@
               <td><small>tonf</small></td>
               <td><small>tonf-m</small></td>
             </thead>
-            <tr style="font-size: 12px;" v-for="interaction_points in interaction">
-              <td>{{interaction_points.y.toFixed(2)}}</td>
-              <td>{{interaction_points.x.toFixed(2)}}</td>
+            <tr style="font-size: 12px;" v-for="points in interaction">
+              <td>{{points.y.toFixed(2)}}</td>
+              <td>{{points.x.toFixed(2)}}</td>
             </tr>
           </table>
           <h4>6.2 Puntos de demanda</h4>
@@ -205,12 +201,12 @@
             <tr class="table-header">
               <td><input v-model="input.Pu" type="text" class="full-width"></td>
               <td><input v-model="input.Mu" type="text" class="full-width"></td>
-              <td><a class="btn" @click="add_steel"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
+              <td><a class="btn" @click="add_interaction_point"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
             </tr>
-            <tr style="font-size: 12px;" v-for="interaction_points in interaction">
-              <td></td>
-              <td></td>
-              <td></td>
+            <tr style="font-size: 12px;" v-for="points in interaction_points">
+              <td>{{points.x}}</td>
+              <td>{{points.y}}</td>
+              <td><a class="btn" @click="delete_interaction_point(points.id)"><i class="fa-solid fa-trash"></i></a></td>
             </tr>
           </table>
         </div>
