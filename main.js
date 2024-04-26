@@ -363,7 +363,7 @@ var app = new Vue({
         var P = (this.axial_load == 0 ? -0.01 : this.axial_load);
         var P = (P == 0 ? -0.01 : this.axial_load);
 
-        var Mn = Math.abs(Mn_concrete + Mn_steel - P * this.xg / 2);
+        var Mn = Math.abs(Mn_concrete + Mn_steel - P * this.xg);
         // Verification
         if (Pn > P) {
           var error = Pn / P;
@@ -470,7 +470,7 @@ var app = new Vue({
         });
         var Pn = Pn_concrete + Pn_steel;
         var P = (P == 0 ? -0.01 : P);
-        var Mn = Math.abs(Mn_concrete + Mn_steel - P * this.xg / 2) / 100;
+        var Mn = Math.abs(Mn_concrete + Mn_steel - P * this.xg) / 100;
         // Verification
         if (Pn > P) {
           var error = Pn / P;
@@ -509,7 +509,7 @@ var app = new Vue({
       for (let i = 0; i < 100; i++) {
         let curvature = (i + 1) / 100000;
         let result = this.calculate_moment_curvature(curvature);
-        this.analysis.data.push({ 'x': curvature, 'y': result.Mn/100 })
+        this.analysis.data.push({ 'x': curvature, 'y': result.Mn / 100 })
       }
     },
     update_interaction_data() {
@@ -517,39 +517,41 @@ var app = new Vue({
       var MaxCompresion = 0;
       var MaxTension = 0;
       this.section.concrete_segments.forEach(element => {
-        MaxCompresion += element.area / 10000 * this.concrete.inputs.fc.value * 100;
+        MaxCompresion += 0.8*element.area / 10000 * 100 * this.concrete.inputs.fc.value;
       });
+      console.log(MaxCompresion)
       this.section.steel_areas.forEach(element => {
-        MaxCompresion += element.area / 10000 * this.steel.inputs.Fy.value * 100 - element.area / 10000 * this.concrete.inputs.fc.value * 100;
-        MaxTension += element.area / 10000 * this.steel.inputs.Fy.value * 100;
+        MaxCompresion += 0.8*element.area / 10000 * 100 * (this.steel.inputs.Fy.value - this.concrete.inputs.fc.value);
+        console.log(MaxCompresion)
+        MaxTension += element.area / 10000 * 100 * this.steel.inputs.Fy.value ;
       });
-      var MaxCompresion = 0.8 * MaxCompresion;
+      
       if (this.switchState) {
         this.interaction.push({ 'x': 0, 'y': -MaxTension });
       } else {
-        this.interaction.push({ 'x': 0, 'y': -MaxTension*0.9});
+        this.interaction.push({ 'x': 0, 'y': -MaxTension * 0.9 });
       }
       var axialLoads = [-0.1];
       var numberOfPoints = 8;
       for (let i = 0; i < numberOfPoints; i++) {
         if (this.switchState) {
-          axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))          
+          axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))
         } else {
-          axialLoads.push(-MaxCompresion*0.65 / numberOfPoints * (i + 1))
+          axialLoads.push(-MaxCompresion * 0.65 / numberOfPoints * (i + 1))
         }
-      };      
+      };
       for (let i = 0; i < axialLoads.length; i++) {
         let P = axialLoads[i];
         let results = this.calcualte_interaction(P);
         if (this.switchState) {
           var phi = 1;
         } else {
-          var phi = Math.min(Math.max(0.65,0.65+(results.et-0.0021)/(0.005-0.0021)*(0.90-0.65)),0.9);
+          var phi = Math.min(Math.max(0.65, 0.65 + (results.et - 0.0021) / (0.005 - 0.0021) * (0.90 - 0.65)), 0.9);
         }
         this.interaction.push(
           {
-            'x': results.Mn*phi,
-            'y': -results.Pn*phi,
+            'x': results.Mn * phi,
+            'y': -results.Pn * phi,
             'max_x': results.max_x,
             'c': results.c,
             'ec': results.ec,
@@ -558,8 +560,8 @@ var app = new Vue({
       if (this.switchState) {
         this.interaction.push({ 'x': 0, 'y': MaxCompresion });
       } else {
-        this.interaction.push({ 'x': 0, 'y': MaxCompresion*0.65 });
-      }      
+        this.interaction.push({ 'x': 0, 'y': MaxCompresion * 0.65 });
+      }
     },
     plot_section() {
       d3.select("#section-svg").remove()
@@ -981,7 +983,7 @@ var app = new Vue({
       g.append("text")
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
-        .attr("y", -margin.left+10)
+        .attr("y", -margin.left + 10)
         .attr("x", -margin.top)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "14px") // Change font-size here
