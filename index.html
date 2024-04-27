@@ -170,12 +170,15 @@
       <div class="card">
         <div>
           <h2 class="title">6. Diagrama de Interacción</h2>
+          <button :class="{ checked: switchState }" @click="toggleSwitch">
+            {{ switchState ? 'Sin Φ ' : 'Con Φ' }}
+          </button>
           <svg width="250" height="170" id="interaction-diagram-svg"></svg>
           <h4>6.1 Tabla del diagrama de interacción</h4>
           <table>
-            <thead style="font-size: 14px;">
-              <th>Pn</th>
-              <th>Mn</th>
+            <thead style="font-size: 12px">
+              <th>P</th>
+              <th>M</th>
             </thead>
             <thead class="table-header">
               <td><small>tonf</small></td>
@@ -188,7 +191,7 @@
           </table>
           <h4>6.2 Puntos de demanda</h4>
           <table>
-            <thead style="font-size: 14px;">
+            <thead style="font-size: 12px;">
               <th>Pu</th>
               <th>Mu</th>
               <th></th>

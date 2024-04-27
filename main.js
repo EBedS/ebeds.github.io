@@ -519,10 +519,8 @@ var app = new Vue({
       this.section.concrete_segments.forEach(element => {
         MaxCompresion += 0.8*element.area / 10000 * 100 * this.concrete.inputs.fc.value;
       });
-      console.log(MaxCompresion)
       this.section.steel_areas.forEach(element => {
         MaxCompresion += 0.8*element.area / 10000 * 100 * (this.steel.inputs.Fy.value - this.concrete.inputs.fc.value);
-        console.log(MaxCompresion)
         MaxTension += element.area / 10000 * 100 * this.steel.inputs.Fy.value ;
       });
       
@@ -532,12 +530,12 @@ var app = new Vue({
         this.interaction.push({ 'x': 0, 'y': -MaxTension * 0.9 });
       }
       var axialLoads = [-0.1];
-      var numberOfPoints = 8;
+      var numberOfPoints = 5;
       for (let i = 0; i < numberOfPoints; i++) {
         if (this.switchState) {
           axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))
         } else {
-          axialLoads.push(-MaxCompresion * 0.65 / numberOfPoints * (i + 1))
+          axialLoads.push(-MaxCompresion / numberOfPoints * (i + 1))
         }
       };
       for (let i = 0; i < axialLoads.length; i++) {
@@ -547,6 +545,7 @@ var app = new Vue({
           var phi = 1;
         } else {
           var phi = Math.min(Math.max(0.65, 0.65 + (results.et - 0.0021) / (0.005 - 0.0021) * (0.90 - 0.65)), 0.9);
+          console.log(phi)
         }
         this.interaction.push(
           {
@@ -978,7 +977,7 @@ var app = new Vue({
         .attr("y", height + margin.bottom)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "14px") // Change font-size here
-        .text("Mn (tonf-m)");
+        .text("M (tonf-m)");
       // Y Axis Title
       g.append("text")
         .attr("text-anchor", "end")
@@ -987,7 +986,7 @@ var app = new Vue({
         .attr("x", -margin.top)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "14px") // Change font-size here
-        .text("Pn (tonf)");
+        .text("P (tonf)");
       this.interaction_points.forEach(element => {
         g.append('circle')
           .attr('cx', xScale(element.y)) // Set circle's x-coordinate
