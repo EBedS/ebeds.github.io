@@ -517,7 +517,7 @@ var app = new Vue({
       var MaxCompresion = 0;
       var MaxTension = 0;
       this.section.concrete_segments.forEach(element => {
-        MaxCompresion += 0.8*element.area / 10000 * 100 * this.concrete.inputs.fc.value;
+        MaxCompresion += 0.8*element.area / 10000 * 100 * 0.85 * this.concrete.inputs.fc.value;
       });
       this.section.steel_areas.forEach(element => {
         MaxCompresion += 0.8*element.area / 10000 * 100 * (this.steel.inputs.Fy.value - this.concrete.inputs.fc.value);
