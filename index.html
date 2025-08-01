@@ -149,8 +149,20 @@
         <div class="form-group">
           <h2 class="title">4. Diagrama Momento-Curvatura</h2>
           <div class="input-group">
-            <label>Carga axial (tonf) [+ Tensión]</label>
-            <input class="input-primary" type="text" v-model="axial_load">
+            <label>Carga axial (tonf) - Compresión negativa</label>
+            <div class="slider-container">
+              <input class="canvas-width-slider" type="range"
+              style="margin: 0; padding: 0;" 
+                     :min="-maxAxialLoad" 
+                     max="-0.1" 
+                     :step="maxAxialLoad/1000"
+                     v-model="axial_load"
+                     :disabled="!hasSteelAreas">
+              <div class="slider-value">{{ parseFloat(axial_load).toFixed(2) }} tonf</div>
+              <div v-if="!hasSteelAreas" class="slider-message" style="font-size: 10px; color: #666; margin-top: 5px;">
+                Agregue áreas de acero para habilitar el control de carga axial
+              </div>
+            </div>
           </div>
         </div>
         <div class="analysis-chart-container" id="moment-curvature-container">
