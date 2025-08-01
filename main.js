@@ -108,6 +108,24 @@ var app = new Vue({
         ...steel,
         x: steel.x + halfWidth
       }));
+    },
+    // Calculate maximum axial load based on concrete capacity
+    maxAxialLoad() {
+      const fc = parseFloat(this.concrete.inputs.fc.value) || 0;
+      const concrete_fibers = this.get_concrete_fibers();
+      let totalConcreteArea = 0;
+      
+      concrete_fibers.forEach(fiber => {
+        totalConcreteArea += fiber.area;
+      });
+      
+      // Convert area from mm² to cm² (divide by 100) and multiply by fc * 100
+      // This gives the maximum compression capacity in tonf
+      return (totalConcreteArea / 100) * fc * 100 / 1000; // Convert to tonf
+    },
+    // Check if steel areas exist
+    hasSteelAreas() {
+      return this.section.steel_areas && this.section.steel_areas.length > 0;
     }
   },
   methods: {
@@ -1713,10 +1731,10 @@ var app = new Vue({
         .attr('id', 'vertical-line') // Adding an identifier
         .attr('x1', xScale(this.curvature / 100000))
         .attr('x2', xScale(this.curvature / 100000))
-        .attr('y1', 3)
+        .attr('y1', 1)
         .attr('y2', height)
-        .attr('stroke', 'black')
-        .attr('stroke-width', 3)
+        .attr('stroke', 'tomato')
+        .attr('stroke-width', 1)
       // Values of Mn and Φ
       var Mn = this.results.Mn / 100
       var Cur = this.curvature / 100000
@@ -1727,7 +1745,7 @@ var app = new Vue({
         .attr("y", margin.top - 30)
         .style("font-family", "Arial") // Change font-family here
         .style("font-size", "10px") // Change font-size here
-        .text('(' + Cur.toFixed(5) + ', ' + Mn.toFixed(2) + ')');
+        .text('(' + Cur.toFixed(6) + ', ' + Mn.toFixed(2) + ')');
     },
     plot_deformation_profile() {
       d3.select("#def-profile-svg").html('')
@@ -2113,6 +2131,16 @@ var app = new Vue({
           this.results = this.calculate_moment_curvature(this.curvature / 100000);
         }
       }
+    },
+    // Watch for changes in steel areas to control axial load
+    'section.steel_areas': {
+      handler() {
+        // If no steel areas, set axial load to -0.1
+        if (!this.section.steel_areas || this.section.steel_areas.length === 0) {
+          this.axial_load = -0.1;
+        }
+      },
+      deep: true
     },
     interaction_points: {
       handler() {
