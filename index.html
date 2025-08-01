@@ -19,129 +19,135 @@
     </header>
 
     <div class="container">
-      <div class="card">
-        <div class="form-group">
-          <h2 class="title">Introducción</h2>
-          <small>v.0.0.1</small>
-          <small>Abril 2024</small>
-          <ul>
-            <li>Mini Section Designer permite hacer un análisis seccional unidireccional sencillo.</li>
-            <li>Se pueden definir modelos de materiales de hormigón (Hognestad) y acero (Mander).</li>
-            <li>Se construye una sección en base a areas de hormigón y areas concentradas de acero.</li>
-            <li>El análisis es unidireccional en sentido de izquierda a derecha. Se comprime el lado derecho de la sección y se tracciona el lado izquierdo.</li>
-            <li>Se puede visualizar e interactuar con el diagrama momento-curvatura.</li>
-            <li>En base a la curvatura elegida, se actualiza el perfil de deformaciones, de tensiones del hormigón y de tensiones del acero.</li>
-          </ul>
-        </div>
-      </div>
+
 
       <div class="card">
         <div class="form-group">
           <h2 class="title">1. Definir hormigón</h2>
-          <div class="input-group" v-for="(input, label) in concrete.inputs" :key="label">
+          <div class="input-group-compact" v-for="(input, label) in concrete.inputs" :key="label">
             <label>{{ input.description }}</label>
             <input class="input-primary" type="text" v-model="input.value">
           </div>
         </div>
-        <div class="form-group">
-          <h2 class="title">2. Definir acero</h2>
-          <div class="input-group" v-for="(input, label) in steel.inputs" :key="label">
-            <label>{{ input.description }}</label>
-            <input class="input-primary" type="text" v-model="input.value">
-          </div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="title">3. Definir sección</h2>
-        <div class="form-group">
-          <h4>3.1 Agregar áreas de hormigón</h4>
-          <ul style="font-size: 12px;">
-            <li>xi es la coordenada inicial del tramo en cm.</li>
-            <li>xf es la coordenada final del tramo en cm.</li>
-            <li>e es espesor del tramo en cm.</li>
-            <li>Click en <i class="fa-sharp fa-solid fa-plus"></i> para agregar.</li>
-            <li>Se pueden agregar varios tramos.</li>
-          </ul>
-          <table>
-            <thead>
-              <th>x<small>i</small></th>
-              <th>x<small>f</small></th>
-              <th>e</th>
-              <th></th>
-            </thead>
-            <thead>
-              <td><small>cm</small></td>
-              <td><small>cm</small></td>
-              <td><small>cm</small></td>
-              <td></td>
-            </thead>
-            <tr class="table-header">
-              <td><input v-model="input.x1" type="text" class="full-width"></td>
-              <td><input v-model="input.x2" type="text" class="full-width"></td>
-              <td><input v-model="input.thickness" type="text" class="full-width"></td>
-              <td><a class="btn" @click="add_concrete"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
-            </tr>
-            <tr v-for="concrete_section in section.concrete_segments">
-              <td>{{concrete_section.x1}}</td>
-              <td>{{concrete_section.x2}}</td>
-              <td>{{concrete_section.thickness}}</td>
-              <td><a class="btn" @click="delete_concrete(concrete_section.id)"><i class="fa-solid fa-trash"></i></a></td>
-            </tr>
-          </table>
-        </div>
-        <div class="form-group">
-          <h4>3.2 Agregar áreas de acero</h4>
-          <ul style="font-size: 12px;">
-            <li>x es la coordenada del centro del área concentrada de acero en cm.</li>
-            <li>A es el área concentrada de acero en cm².</li>
-            <li>Click en <i class="fa-sharp fa-solid fa-plus"></i> para agregar.</li>
-            <li>Se pueden agregar varias áreas concentradas de acero.</li>
-          </ul>
-          <table>
-            <thead>
-              <th>x</th>
-              <th>A</th>
-              <th></th>
-            </thead>
-            <thead>
-              <td><small>cm</small></td>
-              <td><small>cm²</small></td>
-              <td></td>
-            </thead>
-            <tr class="table-header">
-              <td><input v-model="input.x" type="text" class="full-width"></td>
-              <td><input v-model="input.area" type="text" class="full-width"></td>
-              <td><a class="btn" @click="add_steel"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
-            </tr>
-            <tr v-for="steel_section in section.steel_areas">
-              <td>{{steel_section.x}}</td>
-              <td>{{steel_section.area}}</td>
-              <td><a class="btn" @click="delete_steel(steel_section.id)"><i class="fa-solid fa-trash"></i></a></td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2 class="title">4. Resumen de sección y materiales</h2>
-        <h4>4.1 Sección considerada</h4>
-        <div id="section-container" class="section-chart-container">
-          <svg id="section-svg"></svg>
-        </div>
-        <h4>4.2 Hormigón considerado</h4>
         <div class="concrete-chart-container">
           <svg id="concrete-svg" width="250" height="150"></svg>
         </div>
-        <h4>4.3 Acero considerado</h4>
+
+        <div class="form-group">
+          <h2 class="title">2. Definir acero</h2>
+          <div class="input-group-compact" v-for="(input, label) in steel.inputs" :key="label">
+            <label>{{ input.description }}</label>
+            <input class="input-primary" type="text" v-model="input.value">
+          </div>
+        </div>
         <div class="steel-chart-container">
           <svg id="steel-svg" width="250" height="150"></svg>
         </div>
       </div>
 
+      <div class="card section-card">
+        <h2 class="title">3. Definir sección</h2>
+        
+        <!-- Interactive Section Designer -->
+        <div class="form-group">
+          <div class="design-mode-tabs">
+            <button :class="{ active: designMode === 'concrete' }" @click="setDesignMode('concrete')">
+              <i class="fa-solid fa-cube"></i> Hormigón
+            </button>
+            <button :class="{ active: designMode === 'steel' }" @click="setDesignMode('steel')">
+              <i class="fa-solid fa-circle"></i> Acero
+            </button>
+            <button :class="{ active: designMode === 'pan' }" @click="setDesignMode('pan')">
+              <i class="fa-solid fa-hand"></i> Navegar
+            </button>
+          </div>
+          
+          <div v-if="designMode === 'concrete'" class="mode-instructions">
+            <p><i class="fa-solid fa-info-circle"></i> <strong>Modo Hormigón:</strong> Haz clic y arrastra para dibujar segmentos de hormigón. El espesor se define abajo.</p>
+            <div class="input-group">
+              <label>Espesor del segmento (cm):</label>
+              <input type="number" v-model="currentThickness" min="1" max="100" step="0.1">
+            </div>
+          </div>
+          
+          <div v-if="designMode === 'steel'" class="mode-instructions">
+            <p><i class="fa-solid fa-info-circle"></i> <strong>Modo Acero:</strong> Haz clic dentro de un segmento de hormigón para colocar acero. El área se define abajo.</p>
+            <div class="input-group">
+              <label>Área de acero (cm²):</label>
+              <input type="number" v-model="currentSteelArea" min="0.1" max="50" step="0.1">
+            </div>
+          </div>
+          
+          <div v-if="designMode === 'pan'" class="mode-instructions">
+            <p><i class="fa-solid fa-info-circle"></i> <strong>Modo Navegar:</strong> Usa la rueda del ratón para hacer zoom. Arrastra para hacer pan. Haz clic en elementos para seleccionar y eliminar.</p>
+          </div>
+          
+          <!-- Compact Grid Controls above canvas -->
+          <div class="grid-controls-compact">
+            <div class="controls-grid">
+              <!-- Column 1: Buttons -->
+              <button @click="clearSection" class="btn-warning">
+                <i class="fa-solid fa-eraser"></i> Limpiar
+              </button>
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="snapToGrid"> Ajustar a grilla
+              </label>
+              
+              <!-- Column 2: Checkboxes -->
+              <label class="checkbox-label">
+                <input type="checkbox" v-model="showGrid"> Mostrar grilla
+              </label>
+              <button @click="resetView" class="btn-secondary">
+                <i class="fa-solid fa-home"></i> Centrar
+              </button>
+
+              
+              <!-- Column 3: Inputs/Sliders -->
+              <div class="canvas-width-control">
+                <label>Ancho de la grilla: {{ canvasWidth }}cm</label>
+                <input type="range" v-model.number="canvasWidth" min="50" max="1000" step="10" class="canvas-width-slider">
+              </div>
+            </div>
+          </div>
+          
+          <!-- Interactive Canvas -->
+          <div id="section-designer-container" class="section-designer-container">
+            <svg id="section-designer-svg"></svg>
+          </div>
+        </div>
+
+        <!-- Current Section Summary -->
+        <div class="form-group">
+          <div class="section-summary">
+            <div class="summary-column">
+              <h4>Segmentos de Hormigón ({{ section.concrete_segments.length }})</h4>
+              <div class="summary-list">
+                <div v-for="(segment, index) in displayConcreteSegments" :key="section.concrete_segments[index].id" class="summary-item">
+                  <span>x₁: {{ segment.x1.toFixed(1) }}cm, x₂: {{ segment.x2.toFixed(1) }}cm, e: {{ segment.thickness.toFixed(1) }}cm</span>
+                  <button @click="delete_concrete(section.concrete_segments[index].id)" class="btn-delete">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="summary-column">
+              <h4>Áreas de Acero ({{ section.steel_areas.length }})</h4>
+              <div class="summary-list">
+                <div v-for="(steel, index) in displaySteelAreas" :key="section.steel_areas[index].id" class="summary-item">
+                  <span>x: {{ steel.x.toFixed(1) }}cm, A: {{ steel.area.toFixed(1) }}cm²</span>
+                  <button @click="delete_steel(section.steel_areas[index].id)" class="btn-delete">
+                    <i class="fa-solid fa-trash"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="card">
         <div class="form-group">
-          <h2 class="title">5. Diagrama Momento-Curvatura</h2>
+          <h2 class="title">4. Diagrama Momento-Curvatura</h2>
           <div class="input-group">
             <label>Carga axial (tonf) [+ Tensión]</label>
             <input class="input-primary" type="text" v-model="axial_load">
@@ -152,9 +158,9 @@
         </div>
         <div class="input-group">
           <span>
-            <small style="font-size: 12px;">Desliza para modificar curvatura.</small>
+            <label>Desliza para modificar curvatura.</label>
             <input style="margin: 0; padding: 0;" type="range" id="mySlider" min="0" max="100" value="0"
-              v-model="curvature">
+              v-model="curvature" class="canvas-width-slider">
           </span>
         </div>
         <div class="analysis-chart-container-2">
@@ -169,12 +175,12 @@
       </div>
       <div class="card">
         <div>
-          <h2 class="title">6. Diagrama de Interacción</h2>
+          <h2 class="title">5. Diagrama de Interacción</h2>
           <button :class="{ checked: switchState }" @click="toggleSwitch">
             {{ switchState ? 'Sin Φ ' : 'Con Φ' }}
           </button>
           <svg width="250" height="170" id="interaction-diagram-svg"></svg>
-          <h4>6.1 Tabla del diagrama de interacción</h4>
+          <h4>5.1 Tabla del diagrama de interacción</h4>
           <table>
             <thead style="font-size: 12px">
               <th>P</th>
@@ -189,9 +195,9 @@
               <td>{{points.x.toFixed(2)}}</td>
             </tr>
           </table>
-          <h4>6.2 Puntos de demanda</h4>
+          <h4>5.2 Puntos de demanda</h4>
           <table>
-            <thead style="font-size: 12px;">
+            <thead style="font-size: 10px;">
               <th>Pu</th>
               <th>Mu</th>
               <th></th>
@@ -206,7 +212,7 @@
               <td><input v-model="input.Mu" type="text" class="full-width"></td>
               <td><a class="btn" @click="add_interaction_point"><i class="fa-sharp fa-solid fa-plus"></i></a></td>
             </tr>
-            <tr style="font-size: 12px;" v-for="points in interaction_points">
+            <tr style="font-size: 10px;" v-for="points in interaction_points">
               <td>{{points.x}}</td>
               <td>{{points.y}}</td>
               <td><a class="btn" @click="delete_interaction_point(points.id)"><i class="fa-solid fa-trash"></i></a></td>
@@ -216,6 +222,7 @@
 
       </div>
     </div>
+  </div>
   </div>
   <script src="main.js"></script>
 </body>

@@ -2,11 +2,13 @@ body, html {
   margin: 0;
   padding: 0;
   font-family: Arial, sans-serif;
-  font-size: 16px;
+  font-size: 10px;
+  color: #2D2D2D;
 }
 
 header {
-  background-color: #f4f4f4;
+  background-color: #2D2D2D;
+  color: white;
   padding: 20px;
   text-align: left;
 }
@@ -14,6 +16,7 @@ header {
 h4 {
   margin-top: 5px;
   margin-bottom: 2px;
+  color: #2D2D2D;
 }
 
 header button {
@@ -22,53 +25,254 @@ header button {
   outline: none;
   padding: 14px 16px;
   cursor: pointer;
-  font-size: 17px;
+  font-size: 10px;
+  background-color: #2D2D2D;
+  color: white;
+  border-radius: 4px;
+  transition: background-color 0.3s;
 }
 
 header button:hover {
-  background-color: #ddd;
+  background-color: #FFD700;
+  color: #2D2D2D;
 }
 
 .menu {
   overflow: hidden;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
+  border: 1px solid #2D2D2D;
+  background-color: #f9f9f9;
 }
 
 .menu button {
-  background-color: inherit;
+  background-color: #2D2D2D;
+  color: white;
   float: left;
   border: none;
   outline: none;
   cursor: pointer;
   padding: 14px 16px;
   transition: 0.3s;
-  font-size: 17px;
+  font-size: 10px;
 }
 
 .menu button:hover {
-  background-color: #ddd;
+  background-color: #FFD700;
+  color: #2D2D2D;
 }
 
 .menu button.active {
-  background-color: #ccc;
+  background-color: #FFD700;
+  color: #2D2D2D;
 }
 
 .card {
   width: 250px; /* Fixed card width */
   height: 700px;
   padding: 10px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(45, 45, 45, 0.1);
   margin: 5px;
   font-family: Arial, sans-serif;
   display: inline-flex;
   flex-direction: column;
   justify-content: space-between; /* Ensures elements are spaced out and chart container aligns to the bottom */
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+}
+
+/* Special double-width layout for the section designer card */
+.section-card {
+  width: 520px; /* Double width (250px * 2 + margin) */
+}
+
+/* Special layout for the section designer card - removed since we're keeping compact layout */
+
+/* Designer header with expand button */
+.designer-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.btn-expand {
+  background: #2D2D2D;
+  color: white;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: background-color 0.3s;
+  font-weight: bold;
+}
+
+.btn-expand:hover {
+  background: #FFD700;
+  color: #2D2D2D;
+}
+
+/* Modal Styles */
+.designer-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.designer-modal-content {
+  background: white;
+  border-radius: 8px;
+  width: 95vw;
+  height: 90vh;
+  max-width: 1400px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+  background: #f8f9fa;
+  border-radius: 8px 8px 0 0;
+}
+
+.modal-header h2 {
+  margin: 0;
+  color: #2D2D2D;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-close {
+  background: #2D2D2D;
+  color: white;
+  border: none;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  transition: background-color 0.3s;
+}
+
+.btn-close:hover {
+  background: #FFD700;
+  color: #2D2D2D;
+}
+
+.modal-body {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  overflow: hidden;
+}
+
+/* Large canvas for modal */
+.section-designer-modal-container {
+  flex: 1;
+  border: 2px solid #305BA1;
+  border-radius: 8px;
+  background: #fafafa;
+  position: relative;
+  overflow: hidden;
+  min-height: 400px;
+}
+
+.section-designer-modal-container svg {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.section-designer-modal-container svg.pan-mode {
+  cursor: grab;
+}
+
+.section-designer-modal-container svg.pan-mode:active {
+  cursor: grabbing;
+}
+
+/* Modal controls layout */
+.modal-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #dee2e6;
+}
+
+.control-group {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.btn-primary, .btn-secondary, .btn-warning {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+  transition: background-color 0.3s;
+  font-weight: bold;
+  background: #2D2D2D;
+  color: white;
+}
+
+.btn-primary:hover, .btn-secondary:hover, .btn-warning:hover {
+  background: #FFD700;
+  color: #2D2D2D;
+}
+
+.btn-primary {
+  background: #2D2D2D;
+  color: white;
+}
+
+.btn-secondary {
+  background: #2D2D2D;
+  color: white;
+}
+
+.btn-warning {
+  background: #2D2D2D;
+  color: white;
 }
 
 .card .title {
-  font-size: 20px;
+  font-size: 12px;
   margin-bottom: 5px;
+  color: #2D2D2D;
+  font-weight: bold;
 }
 
 .card input {
@@ -78,17 +282,30 @@ header button:hover {
 }
 
 .card label {
-  font-size: 14px;
+  font-size: 10px;
   display: block;
   width: 100%;
   margin-bottom: 5px;
+  color: #2D2D2D;
+  font-weight: bold;
 }
 
 .card input {
   padding: 10px;
   margin-top: 5px;
   font-weight: bold;
-  font-size: 15px;
+  font-size: 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  background: #FFD700;
+  color: #2D2D2D;
+  transition: border-color 0.3s;
+}
+
+.card input:focus {
+  outline: none;
+  border-color: #FFD700;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
 }
 
 .steel-chart-container .concrete-chart-container .section-chart-container  {
@@ -106,6 +323,41 @@ header button:hover {
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
+}
+
+/* Compact input groups for material definitions */
+.input-group-compact {
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.input-group-compact label {
+  font-size: 10px;
+  margin-bottom: 0;
+  flex: 1;
+  min-width: 0; /* Allow label to shrink */
+  color: #2D2D2D;
+}
+
+.input-group-compact input {
+  padding: 4px 6px;
+  margin-top: 0;
+  font-weight: normal;
+  font-size: 12px;
+  width: 80px;
+  flex-shrink: 0;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  background: #FFD700;
+  color: #2D2D2D;
+}
+
+.input-group-compact input:focus {
+  outline: none;
+  border-color: #FFD700;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
 }
 
 .analysis-chart-container {
@@ -140,21 +392,25 @@ input.full-width {
   padding: 1px;
   height: 20px;
   border-radius: 5px;
-  border: none;
-  background-color: #FFDC01;
+  border: 1px solid #e0e0e0;
+  background-color: #FFD700;
+  color: #2D2D2D;
   text-align: center;
   box-sizing: border-box; /* Make sure padding and border are included in the width */
+  font-weight: bold;
 }
 
 .input-primary {
   padding: 1px;
   height: 20px;
   width: 100px !important;
-  background-color: #FFDC01;
-  border: none;
+  background-color: #FFD700;
+  color: #2D2D2D;
+  border: 1px solid #e0e0e0;
   border-radius: 5px;
   text-align: center;
   box-sizing: border-box; /* Make sure padding and border are included in the width */
+  font-weight: bold;
 }
 
 .btn:hover {
@@ -174,4 +430,558 @@ button {
 }
 button:hover{
   border: 2px solid black;
+}
+
+/* Interactive Section Designer Styles */
+.design-mode-tabs {
+  display: flex;
+  gap: 5px;
+  margin-bottom: 10px;
+}
+
+.design-mode-tabs button {
+  flex: 1;
+  padding: 3px;
+  border: 2px solid #e0e0e0;
+  background-color: #2D2D2D;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  font-weight: bold;
+  font-size: 10px;
+}
+
+.design-mode-tabs button.active {
+  background-color: #FFD700;
+  color: #2D2D2D;
+  border-color: #FFD700;
+}
+
+.design-mode-tabs button:hover {
+  border-color: #FFD700;
+  background-color: #FFD700;
+  color: #2D2D2D;
+}
+
+.design-mode-tabs button.active:hover {
+  background-color: #FFC000;
+}
+
+.mode-instructions {
+  background-color: #FFF8DC;
+  border: 1px solid #FFD700;
+  border-radius: 4px;
+  padding: 6px 8px;
+  margin-bottom: 6px;
+  font-size: 10px;
+  color: #2D2D2D;
+}
+
+.mode-instructions p {
+  margin: 0 0 6px 0;
+  line-height: 1.3;
+}
+
+.mode-instructions .input-group {
+  margin: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mode-instructions label {
+  font-size: 10px;
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.mode-instructions input {
+  width: 70px;
+  padding: 4px 6px;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  background-color: #FFD700;
+  color: #2D2D2D;
+  font-size: 12px;
+}
+
+.section-designer-container {
+  width: 100%;
+  height: 280px; /* Reduced height to save space */
+  border: 2px solid #2D2D2D;
+  border-radius: 5px;
+  margin: 10px 0;
+  background-color: #fafafa;
+  position: relative;
+  overflow: hidden;
+}
+
+.section-designer-container svg {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+}
+
+.section-designer-container svg.pan-mode {
+  cursor: grab;
+}
+
+.section-designer-container svg.pan-mode:active {
+  cursor: grabbing;
+}
+
+.design-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  background-color: #f9f9f9;
+  border-radius: 4px;
+  font-size: 10px;
+  flex-wrap: wrap;
+}
+
+.design-controls .canvas-width-control {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.design-controls .canvas-width-control input {
+  width: 65px;
+  padding: 3px 5px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 10px;
+  background-color: #FFD700;
+  color: #2D2D2D;
+}
+
+.design-controls .btn-warning,
+.design-controls .btn-secondary {
+  padding: 4px 8px;
+  font-size: 10px;
+  border-radius: 3px;
+}
+
+/* Compact grid controls above canvas */
+.grid-controls-compact {
+  padding: 8px;
+  background-color: #FFF8DC;
+  border: 1px solid #FFD700;
+  border-radius: 4px;
+  margin-bottom: 6px;
+  font-size: 10px;
+}
+
+/* 3x2 Grid layout for controls */
+.controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 8px 12px;
+  align-items: center;
+}
+
+/* Make canvas width control span across 2 columns */
+.controls-grid .canvas-width-control {
+  grid-column: span 2;
+  width: 100%;
+  min-width: 200px;
+}
+
+.grid-controls-compact .checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.grid-controls-compact .checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+  transform: scale(0.8);
+}
+
+.grid-controls-compact .grid-size-control {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.grid-controls-compact .grid-size-control input {
+  width: 40px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 10px;
+  background-color: #FFD700;
+  color: #2D2D2D;
+}
+
+.grid-controls-compact .canvas-width-control {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.grid-controls-compact .canvas-width-control input {
+  width: 50px;
+  padding: 2px 4px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font-size: 10px;
+  background-color: #FFD700;
+  color: #2D2D2D;
+}
+
+.grid-controls-compact .btn-warning,
+.grid-controls-compact .btn-secondary {
+  padding: 3px 6px;
+  font-size: 10px;
+  border-radius: 3px;
+  border: 1px solid;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.grid-controls-compact .btn-warning,
+.grid-controls-compact .btn-secondary {
+  background-color: #2D2D2D;
+  color: white;
+  border: 1px solid #2D2D2D;
+  font-weight: bold;
+  padding: 4px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+}
+
+.grid-controls-compact .btn-warning:hover,
+.grid-controls-compact .btn-secondary:hover {
+  background-color: #FFD700;
+  color: #2D2D2D;
+  border-color: #FFD700;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10px;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: auto;
+  margin: 0;
+}
+
+/* Modal controls styling */
+.modal-controls .controls-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  gap: 12px 16px;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.grid-size-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.grid-size-control input {
+  width: 50px;
+  padding: 3px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  background-color: #FFD700;
+  color: #2D2D2D;
+}
+
+.canvas-width-control {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.canvas-width-control input {
+  width: 70px;
+  padding: 3px;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  background: #FFD700;
+  color: #2D2D2D;
+  font-size: 10px;
+}
+
+.canvas-width-control input:focus {
+  outline: none;
+  border-color: #FFD700;
+  box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.2);
+}
+
+/* Canvas width slider styles */
+.canvas-width-slider {
+  width: 100%;
+  min-width: 180px;
+  height: 4px;
+  background: linear-gradient(to right, #FFD700, #FFC000);
+  border-radius: 2px;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 8px 0;
+}
+
+.canvas-width-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  background: #2D2D2D;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #FFD700;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.canvas-width-slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  background: #2D2D2D;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #FFD700;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+
+.btn-warning {
+  background-color: #ff6b6b;
+  color: white;
+  border: 2px solid #ff6b6b;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.btn-warning:hover {
+  background-color: #ff5252;
+  border-color: #ff5252;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+  border: 2px solid #6c757d;
+  padding: 5px 10px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+  border-color: #5a6268;
+}
+
+.section-summary {
+  display: flex;
+  gap: 10px;
+  font-size: 10px;
+}
+
+.summary-column {
+  flex: 1;
+}
+
+.summary-column h5 {
+  margin: 0 0 5px 0;
+  color: #305BA1;
+  font-size: 10px;
+}
+
+.summary-list {
+  max-height: 100px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 3px;
+  padding: 5px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.summary-item:last-child {
+  border-bottom: none;
+}
+
+.btn-delete {
+  background-color: #ff6b6b;
+  color: white;
+  border: none;
+  padding: 2px 5px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 10px;
+  width: auto;
+}
+
+.btn-delete:hover {
+  background-color: #ff5252;
+}
+
+/* Grid lines for the designer */
+.grid-line {
+  stroke: #ddd;
+  stroke-width: 0.5;
+  stroke-dasharray: 2,2;
+}
+
+.grid-line.major {
+  stroke: #bbb;
+  stroke-width: 1;
+}
+
+/* Interactive elements styles */
+.concrete-segment {
+  fill: #e8e8e8;
+  stroke: #ccc;
+  stroke-width: 1;
+  opacity: 0.7;
+  cursor: default; /* Not clickable */
+}
+
+.concrete-segment:hover {
+  fill: #e8e8e8; /* No hover effect */
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+.concrete-segment.selected {
+  /* No selection styling since they're not selectable */
+  fill: #e8e8e8;
+  stroke: #ccc;
+  stroke-width: 1;
+}
+
+.steel-area {
+  fill: #333;
+  stroke: #000;
+  stroke-width: 2;
+  cursor: default;
+}
+
+.drawing-preview {
+  fill: none;
+  stroke: #333;
+  stroke-width: 2;
+  stroke-dasharray: 5,5;
+  opacity: 0.7;
+}
+
+/* Length indicator styles */
+.length-indicator {
+  pointer-events: none;
+}
+
+.length-indicator text {
+  font-family: Arial, sans-serif;
+  user-select: none;
+  fill: #2D2D2D;
+}
+
+.length-indicator rect {
+  opacity: 0;
+  fill: none;
+  stroke: none;
+}
+
+.length-indicator line {
+  opacity: 0;
+  stroke: none;
+}
+
+.length-indicator polygon {
+  opacity: 0;
+  fill: none;
+  stroke: none;
+}
+
+/* Length tooltip styles */
+.length-tooltip {
+  pointer-events: none;
+}
+
+.length-tooltip text {
+  font-family: Arial, sans-serif;
+  user-select: none;
+  fill: #2D2D2D;
+}
+
+.length-tooltip rect {
+  opacity: 0;
+  fill: none;
+  stroke: none;
+}
+
+/* Reference lines styles */
+.reference-lines {
+  pointer-events: none;
+}
+
+.reference-lines line {
+  opacity: 0;
+  stroke: none;
+}
+
+/* Dynamic dimensions styles */
+.dynamic-dimensions {
+  pointer-events: none;
+}
+
+.dynamic-dimensions line {
+  opacity: 0.8;
+}
+
+.dynamic-dimensions text {
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  user-select: none;
+}
+
+.dynamic-dimensions rect {
+  opacity: 0.9;
+}
+
+.dynamic-dimensions polygon {
+  opacity: 0.8;
 }
