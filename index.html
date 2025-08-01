@@ -155,8 +155,8 @@
               style="margin: 0; padding: 0;" 
                      :min="-maxAxialLoad" 
                      max="-0.1" 
-                     :step="maxAxialLoad/1000"
-                     v-model="axial_load"
+                     step="0.1"
+                     v-model.number="axial_load"
                      :disabled="!hasSteelAreas">
               <div class="slider-value">{{ parseFloat(axial_load).toFixed(2) }} tonf</div>
               <div v-if="!hasSteelAreas" class="slider-message" style="font-size: 10px; color: #666; margin-top: 5px;">
@@ -165,23 +165,28 @@
             </div>
           </div>
         </div>
-        <div class="analysis-chart-container" id="moment-curvature-container">
-          <svg width="250" height="150" id="moment-curvature-svg"></svg>
-        </div>
-        <div class="input-group">
+        <div class="input-group" style="margin-top: 10px; margin-bottom: 10px;">
           <span>
             <label>Desliza para modificar curvatura.</label>
             <input style="margin: 0; padding: 0;" type="range" id="mySlider" min="0" max="100" value="0"
               v-model="curvature" class="canvas-width-slider">
           </span>
         </div>
+        <label style="font-size: 10px; margin-top: 5px;" class="title">Diagrama Momento-Curvatura</label>
+        <div class="analysis-chart-container" id="moment-curvature-container">
+          <svg width="250" height="150" id="moment-curvature-svg"></svg>
+        </div>
+
         <div class="analysis-chart-container-2">
+          <label style="font-size: 10px;" class="title">Perfil de deformaciones</label>
           <svg width="250" height="120" id="def-profile-svg"></svg>
         </div>
         <div class="analysis-chart-container-2">
+          <label style="font-size: 10px;" class="title">Perfil de tensiones en hormigón</label> 
           <svg width="250" height="120" id="concrete-profile-svg"></svg>
         </div>
         <div class="analysis-chart-container-2">
+          <label style="font-size: 10px;" class="title">Perfil de tensiones en acero</label>
           <svg width="250" height="120" id="steel-profile-svg"></svg>
         </div>
       </div>
