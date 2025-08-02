@@ -1852,6 +1852,10 @@ var app = new Vue({
           'y': element.tension,
         })
       });
+      
+      // Sort data by x-position to avoid erratic line connections
+      data.sort((a, b) => a.x - b.x);
+      
       // Scales
       const xScale = d3.scaleLinear()
         .domain(d3.extent(data, d => d.x)) // Use actual data extent
