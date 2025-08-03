@@ -15,7 +15,7 @@
   <div id="app">
     <header class="nav">
       <h1>Mini Section Designer (Beta)</h1>
-      Desarrollado por Eduardo Bedecarratz S.
+      Desarrollado por ebedecarratz@renelagos.com
     </header>
 
     <div class="container">
@@ -167,9 +167,9 @@
         </div>
         <div class="input-group" style="margin-top: 10px; margin-bottom: 10px;">
           <span>
-            <label>Desliza para modificar curvatura.</label>
+            <label>Desliza para modificar curvatura Φ:</label>
             <input style="margin: 0; padding: 0;" type="range" id="mySlider" min="0" max="100" value="0"
-              v-model="curvature" class="canvas-width-slider">
+              v-model="curvature" class="canvas-width-slider"> {{ parseFloat(curvature).toFixed(7)/100000 }} rad
           </span>
         </div>
         <label style="font-size: 10px; margin-top: 5px;" class="title">Diagrama Momento-Curvatura</label>
